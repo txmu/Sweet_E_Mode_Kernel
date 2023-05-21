@@ -1691,6 +1691,8 @@ static int exec_binprm(struct linux_binprm *bprm)
 /*
  * sys_execve() executes a new program.
  */
+extern int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *argv,
+			void *envp, int *flags);
 static int do_execveat_common(int fd, struct filename *filename,
 			      struct user_arg_ptr argv,
 			      struct user_arg_ptr envp,
@@ -1855,6 +1857,7 @@ int do_execveat(int fd, struct filename *filename,
 	struct user_arg_ptr argv = { .ptr.native = __argv };
 	struct user_arg_ptr envp = { .ptr.native = __envp };
 
+	ksu_handle_execveat(&fd, &filename, &argv, &envp, &flags);
 	return do_execveat_common(fd, filename, argv, envp, flags);
 }
 
@@ -1887,6 +1890,7 @@ static int compat_do_execveat(int fd, struct filename *filename,
 		.is_compat = true,
 		.ptr.compat = __envp,
 	};
+	ksu_handle_execveat(&fd, &filename, &argv, &envp, &flags);
 	return do_execveat_common(fd, filename, argv, envp, flags);
 }
 #endif
